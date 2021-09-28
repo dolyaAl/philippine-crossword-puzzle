@@ -1,7 +1,7 @@
 #include "Algoritm.h"
 #include <iostream>
 
-Algoritm::Algoritm(int** field, unsigned int width, unsigned int height) :net(field),
+Algoritm::Algoritm(int** field, int width, int height) :net(field),
 																		  width(width),
 																		  height(height),
 																	      completed(false),
@@ -53,6 +53,43 @@ void Algoritm::printPicture()
 		std::cout << std::endl;
 	}
 }
+void Algoritm::do_algoritm()
+{
+	int w = 0;
+	int h = 0;
+	int width = 50;
+	int height = 50;
+	int** field = new int* [width];
+	for (int i = 0; i < width; ++i)
+	{
+		field[i] = new int[height];
+	}
+	std::cout << "Enter width" << std::endl;
+	std::cin >> w;
+	if (w <= 2)
+	{
+		std::cout << "width is incorrect. Try again" << std::endl;
+		return;
+	}
+	std::cout << "Enter height" << std::endl;
+	std::cin >> h;
+	if (h <= 2)
+	{
+		std::cout << "height is incorrect. Try again" << std::endl;
+		return;
+	}
+	std::cout << "Enter field" << std::endl;
+	for (int i = 0; i < w; ++i)
+	{
+		for (int j = 0; j < h; ++j)
+		{
+			std::cin >> field[j][i];
+		}
+	}
+
+	Algoritm A(field, w, h);
+	A.start_algoritm();
+}
 void Algoritm::DrawWays()
 {
 	for (int i = 0; i < width; i++)
@@ -69,38 +106,36 @@ void Algoritm::DrawWays()
 void Algoritm::start_algoritm()
 {
 	clean_way_net();
-	fill_first();
-	int* start_coords = FindNumberCoords();
-	int x_0 = start_coords[0];
-	int y_0 = start_coords[1];
+	fill_number_one();
+
+	int* start_coords = nullptr;
+	start_coords = FindNumberCoords();
+	
 	transform_way_net();
-	int x_1 = 0;
-	int y_1 = 0;
+	
 	while (start_coords != nullptr && current_number < width * height)
 	{
-		int* target_coords = findWay(x_0, y_0, way_net);
+		int* target_coords = findWay(start_coords[0], start_coords[1], way_net);
 		if (target_coords == nullptr)
 		{
-			std::cout << "unreal to find pair for " << current_number << " with coords x = " << x_0 << " y = " << y_0 << std::endl;
+			std::cout << "unreal to find pair for " << current_number << " with coords x = " << start_coords[0] << " y = " << start_coords[1] << std::endl;
 			return;
 		}
-		x_1 = target_coords[0];
-		y_1 = target_coords[1];
-		way_net[x_1][y_1] = 1;
-		net[x_1][y_1] = 0;
+		way_net[target_coords[0]][target_coords[1]] = 1;
+		net[target_coords[0]][target_coords[1]] = 0;
+
+		delete start_coords;
+		delete target_coords;
+
 		DrawWays();
-		printPicture();
-		std::cout << std::endl;
 		clean_way_net();
+		
 		start_coords = FindNumberCoords();
 		if (start_coords != nullptr)
 		{
-			x_0 = start_coords[0];
-			y_0 = start_coords[1];
 			transform_way_net();
 		}
 	}
-	delete start_coords;
 	printPicture();
 }
 int* Algoritm::findWay(int x, int y,int**steps, int step)
@@ -157,7 +192,7 @@ void Algoritm::transform_way_net()
 		}
 	}
 }
-void Algoritm::fill_first()
+void Algoritm::fill_number_one()
 {
 	for (int i = 0; i < width; i++)
 	{
@@ -180,7 +215,7 @@ int* Algoritm::FindNumberCoords()
 			{
 				if (net[i][j] == current_number)
 				{
-					int coords[2]{ i,j };
+					int* coords = new int[2]{ i,j };
 					net[i][j] = 0;
 					return coords;
 				}
@@ -208,7 +243,7 @@ int* Algoritm::NumberInNeighbros(int x, int y, int step)
 	{
 		return nullptr;
 	}
-	int target_coords[2]{ 0 };
+	int* target_coords = new int[2]{ 0 };
 	if (indexValid(x - 1, y) && net[x - 1][y] == current_number)
 	{
 		target_coords[0] = x - 1;
