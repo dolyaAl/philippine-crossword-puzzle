@@ -18,12 +18,18 @@
     <ClInclude Include="Algoritm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Algoritm2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Algoritm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Algoritm2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
