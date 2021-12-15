@@ -319,7 +319,110 @@ void Algoritm2::find_picture()
 		}
 	}
 	vector<vector<int>>::iterator i = all_w_vec.begin();
-	find_pic_rec(pic, pic_rec, all_w_vec, i);
+	int size1 = 0;
+	int size2 = 1;
+	while (size1 - size2 != 0)
+	{
+		size1 = pic.size();
+		get_the_only_ones(pic, all_w_vec);
+		while (i != all_w_vec.end())
+		{
+			if (have_same_coords(pic, *i))
+			{
+				i = all_w_vec.erase(i);
+				if (i == all_w_vec.end())
+				{
+					break;
+				}
+			}
+			else
+			{
+				++i;
+			}
+		}
+		i = all_w_vec.begin();
+		size2 = pic.size();
+	}
+
+	vector<int> num_ways_need(max_num + 1);
+	vector<int> cur_num_ways(max_num + 1);
+	vector<int> ways_added(max_num + 1);
+	int num = 0;
+	while (num != max_num)
+	{
+		num++;
+		for (auto i = pic.begin(); i != pic.end(); ++i)
+		{
+			if ((*i).size() == num)
+			{
+				num_ways_need[num]++;
+			}
+		}
+		num_ways_need[num] = nums_count[num] / 2 - num_ways_need[num];
+	}
+	num = 0;
+	/*while (pic.size() != pair_count)
+	{
+		num++;
+		if (num_ways_need[num] != 0)
+		{
+			for (auto i = all_w_vec.begin(); i != all_w_vec.end(); ++i)
+			{
+				if ((ways_added[(*i).size()] < num_ways_need[(*i).size()]) && 
+					!have_same_coords(pic_rec, *i))
+				{
+					pic_rec.push_back(*i);
+					pic.push_back(*i);
+					ways_added[(*i).size()]++;
+				}
+				for (auto j = all_w_vec.begin(); j != all_w_vec.end(); ++j)
+				{
+					if (j != i)
+					{
+						if (!have_same_coords(pic_rec, *j))
+						{
+							cur_num_ways[(*j).size()]++;
+						}
+					}
+				}
+				int counter = 0;
+				for (int j = 2; j < max_num + 1; ++j)
+				{
+					if (cur_num_ways[j] + ways_added[j] < num_ways_need[j])
+					{
+						++counter;
+					}
+				}
+				if (counter != 0)
+				{
+					if (pic_rec.size() == 0)
+					{
+						i = all_w_vec.erase(i);
+					}
+					pic_rec.pop_back();
+					pic.pop_back();
+				}
+				if (i == all_w_vec.end())
+				{
+					break;
+				}
+				for (int j = 0; j < max_num + 1; ++j)
+				{
+					cur_num_ways[j] = 0;
+				}
+			}
+		}
+	}*/
+
+	vector<vector<int>>::iterator k = all_w_vec.begin();
+	for (auto i = all_w_vec.begin(); i != all_w_vec.end() && (*i).size() == (*k).size(); ++i)
+	{
+		if (pic.size() != pair_count)
+		{
+			find_pic_rec(pic, pic_rec, all_w_vec, i, num_ways_need, ways_added);
+		}
+	}
+
 
 	for (auto i = pic.begin(); i != pic.end(); ++i)
 	{
@@ -341,29 +444,109 @@ void Algoritm2::find_picture()
 void Algoritm2::find_pic_rec(vector<vector<int>>& pic,
 							 vector<vector<int>>& pic_rec,
 							 vector<vector<int>>& all_w_vec, 
-							 vector<vector<int>>::iterator& i)
+							 vector<vector<int>>::iterator& i, 
+							 vector<int>& num_w_need,
+							 vector<int>& num_w_added)
 {
 	if (i == all_w_vec.end())
 	{
 		return;
 	}
 	pic_rec.push_back(*i);
-	if (pic_rec.size() == pair_count)
+	num_w_added[(*i).size()]++;
+	
+	if (pic_rec.size() == pair_count - pic.size())
 	{
-		pic = pic_rec;
+		if (pic.size() != pair_count)
+		{
+			for (auto j = pic_rec.begin(); j != pic_rec.end(); ++j)
+			{
+				pic.push_back(*j);
+			}
+		}
 		return;
 	}
 	else
 	{
-		for (auto j = all_w_vec.begin(); j != all_w_vec.end(); ++j)
+		for (auto j = all_w_vec.begin(); j != all_w_vec.end() && pic.size() != pair_count; ++j)
 		{
-			if (!have_same_coords(pic_rec, *j))
+			if (num_w_added[(*j).size()] < num_w_need[(*j).size()])
 			{
-				find_pic_rec(pic, pic_rec, all_w_vec, j);
+				if (!have_same_coords(pic_rec, *j))
+				{
+					find_pic_rec(pic, pic_rec, all_w_vec, j, num_w_need, num_w_added);
+				}
 			}
 		}
 	}
 	pic_rec.pop_back();
+	num_w_added[(*i).size()]--;
+}
+
+bool Algoritm2::the_only_one(vector<vector<int>>& all_w_v, int coord)
+{
+	int first = coord;
+	int temp1 = 0;
+	int temp2 = 0;
+	int count = 0;
+	
+	for (auto i = all_w_v.begin(); i != all_w_v.end(); ++i)
+	{
+		temp1 = (*i).front();
+		temp2 = (*i).back();
+		if (temp1 == first || temp2 == first)
+		{
+			count++;
+		}
+	}
+	return count == 1;
+}
+
+vector<vector<int>>::iterator Algoritm2::find_way(int coord, vector<vector<int>>& all_w_v)
+{
+	vector<vector<int>>::iterator k = all_w_v.end();
+	for (auto i = all_w_v.begin(); i != all_w_v.end(); ++i)
+	{
+		if ((*i).front() == coord)
+		{
+			return i;
+		}
+		else if((*i).back() == coord)
+		{
+			return i;
+		}
+	}
+	return k;
+}
+
+void Algoritm2::get_the_only_ones(vector<vector<int>>& pic, vector<vector<int>>& all_w)
+{
+	vector<vector<int>>::iterator i_temp;
+	vector<int> temp;
+	int counter = 0;
+	for (auto i = all_num_coords.begin(); i != all_num_coords.end(); ++i)
+	{
+		if (the_only_one(all_w, *i))
+		{
+			i_temp = find_way(*i, all_w);
+			if (i_temp != all_w.end())
+			{
+				temp = *i_temp;
+				counter = 0;
+				for (auto i = pic.begin(); i != pic.end(); ++i)
+				{
+					if (temp == *i)
+					{
+						counter++;
+					}
+				}
+				if (counter == 0)
+				{
+					pic.push_back(temp);
+				}
+			}
+		}
+	}
 }
 
 void Algoritm2::pair_count_f()

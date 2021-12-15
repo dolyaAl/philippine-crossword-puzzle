@@ -59,8 +59,15 @@ public:
 	bool coord_in_field(int coord);
 	void feel_all_ways();
 	void find_picture();
-	
-	void find_pic_rec(vector<vector<int>>& pic, vector<vector<int>>& pic_rec, vector<vector<int>>& all_w_vec, vector<vector<int>>::iterator& i);
+	vector<vector<int>>::iterator find_way(int coord, vector<vector<int>>& all_w_v);
+	bool the_only_one(vector<vector<int>>& all_w_v, int to_test);
+	void get_the_only_ones(vector<vector<int>>& pic, vector<vector<int>>& all_w_v);
+	void find_pic_rec(vector<vector<int>>& pic, 
+					  vector<vector<int>>& pic_rec, 
+		              vector<vector<int>>& all_w_vec, 
+		              vector<vector<int>>::iterator& i, 
+		              vector<int>& n_w_n, 
+		              vector<int>& num_w_added);
 	bool have_same_coords(vector<vector<int>>& selection, vector<int>& test);
 	vector<int> current_src(int x, int y);
 	void pair_count_f();
